@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root { height: 100%; margin: 0; }
+body { background: #0b0d14; color: #fff; font-family: system-ui, 'Segoe UI', sans-serif; overflow: hidden; }
+
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.marquee { display: inline-flex; white-space: nowrap; animation: marquee 22s linear infinite; }
+.marquee.rev { animation-direction: reverse; }
+
+@keyframes siren { 0%,100% { opacity: .05 } 50% { opacity: .45 } }
+
