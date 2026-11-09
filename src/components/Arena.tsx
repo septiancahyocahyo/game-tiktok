@@ -280,22 +280,22 @@ export default function Arena() {
 
       {/* Dunia Arena Panjang (3360px) Berisi 5 Background Panoramik Bersambung */}
       <motion.div
-        className="absolute inset-y-0 left-0"
+        className="absolute inset-y-0 left-0 bg-slate-900"
         style={{ width: TOTAL_WORLD_WIDTH }}
         animate={{ x: -cameraX }}
         transition={{ type: 'spring', stiffness: 55, damping: 16 }}
       >
         {/* Rangkaian 5 Background: Penjara -> Kampus -> Monas -> DPR -> Istana */}
         <div className="flex h-full select-none" style={{ width: TOTAL_WORLD_WIDTH }}>
-          {BG_STAGES.map((bg) => (
+          {BG_STAGES.map((bg, idx) => (
             <img
               key={bg.id}
               src={bg.src}
               alt={bg.name}
               draggable={false}
-              className="h-full block select-none pointer-events-none shrink-0"
+              className={`h-full block select-none pointer-events-none shrink-0 ${idx > 0 ? '-ml-[1px]' : ''}`}
               style={{
-                width: PANEL_WIDTH,
+                width: idx > 0 ? PANEL_WIDTH + 1 : PANEL_WIDTH,
                 objectFit: 'cover',
                 objectPosition: 'center bottom',
               }}
