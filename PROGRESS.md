@@ -131,3 +131,5 @@ Bagi agen/developer yang melanjutkan:
 3. **Kustomisasi & Penyesuaian Kebutuhan Streamer:**
    - Memungkinkan penggantian slot kamera streamer (Zona 5 kanan) dengan input OBS Browser Source transparan (*chroma key* atau latar transparan).
    - Opsi penyesuaian nilai koin gift dan katalog gift sesuai event TikTok yang sedang aktif.
+
+noa
