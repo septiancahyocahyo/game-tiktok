@@ -3,6 +3,22 @@ import { VIPS, type Vip } from '../data'
 import { useGame } from '../store'
 import VipAvatar from './VipAvatar'
 
+// Daftar 5 background panoramik dari Barat (Penjara) hingga Timur (Istana Negara)
+const BG_STAGES = [
+  { id: 'bg-1', name: 'Penjara', src: '/assets/backgrounds/bg-1.png' },
+  { id: 'bg-2', name: 'Universitas', src: '/assets/backgrounds/bg-2.png' },
+  { id: 'bg-3', name: 'Silang Monas', src: '/assets/backgrounds/bg-3.png' },
+  { id: 'bg-4', name: 'Gedung DPR / MPR', src: '/assets/backgrounds/bg-4.png' },
+  { id: 'bg-5', name: 'Istana Negara', src: '/assets/backgrounds/bg-5.png' },
+]
+
+// Dimensi matematika dunia horizontal:
+// Setiap panel 2000x857 pada tinggi 288px memiliki lebar alami 288 * (2000/857) = 672px
+const PANEL_WIDTH = 672
+const TOTAL_WORLD_WIDTH = PANEL_WIDTH * 5 // 3360px
+const VIEWPORT_WIDTH = 540
+const MAX_SCROLL = TOTAL_WORLD_WIDTH - VIEWPORT_WIDTH // 2820px
+
 const MAHASISWA_SPRITES = {
   merah: '/assets/characters/mahasiswa-merah.png',
   biru: '/assets/characters/mahasiswa-biru.png',
@@ -13,7 +29,7 @@ const POLISI_SPRITE = '/assets/characters/polisi-w-tameng.png'
 interface MahasiswaSpec {
   id: string
   sprite: string
-  /** Jarak sisi kanan gambar (bagian depan mahasiswa) dari titik bentrok (px) */
+  /** Jarak sisi kanan gambar dari titik bentrok (px) */
   right: number
   /** Posisi vertikal kaki dari bawah arena (px) */
   bottom: number
@@ -43,28 +59,27 @@ interface PolisiSpec {
   brightness: number
   /** Delay animasi dorong */
   delay: number
-  /** Jarak dorongan maju ke kiri (px, bernilai negatif) */
+  /** Jarak dorongan maju ke kiri (px) */
   lunge: number
 }
 
 // Barisan Mahasiswa (Kiri -> mendorong ke Kanan, menghadap kanan)
-// Disusun 3 lapis kedalaman (Belakang, Tengah, Depan) agar tampak berbaris rapat
 const MAHASISWA_UNITS: MahasiswaSpec[] = [
-  // Lapis Belakang (barisan ke-3 di sisi dalam jalan)
+  // Lapis Belakang
   { id: 'm-b1', sprite: MAHASISWA_SPRITES.hijau, right: 10, bottom: 26, height: 112, z: 10, brightness: 0.76, delay: 0.05, lunge: 9 },
   { id: 'm-b2', sprite: MAHASISWA_SPRITES.merah, right: 48, bottom: 28, height: 106, z: 10, brightness: 0.76, delay: 0.14, lunge: 8 },
   { id: 'm-b3', sprite: MAHASISWA_SPRITES.biru, right: 86, bottom: 26, height: 108, z: 10, brightness: 0.74, delay: 0.22, lunge: 7 },
   { id: 'm-b4', sprite: MAHASISWA_SPRITES.hijau, right: 122, bottom: 28, height: 112, z: 10, brightness: 0.72, delay: 0.3, lunge: 6 },
   { id: 'm-b5', sprite: MAHASISWA_SPRITES.merah, right: 164, bottom: 26, height: 106, z: 10, brightness: 0.7, delay: 0.38, lunge: 6 },
 
-  // Lapis Tengah (barisan ke-2)
+  // Lapis Tengah
   { id: 'm-m1', sprite: MAHASISWA_SPRITES.biru, right: -2, bottom: 14, height: 116, z: 20, brightness: 0.88, delay: 0.02, lunge: 11 },
   { id: 'm-m2', sprite: MAHASISWA_SPRITES.hijau, right: 30, bottom: 15, height: 122, z: 20, brightness: 0.88, delay: 0.1, lunge: 10 },
   { id: 'm-m3', sprite: MAHASISWA_SPRITES.merah, right: 72, bottom: 14, height: 116, z: 20, brightness: 0.86, delay: 0.18, lunge: 9 },
   { id: 'm-m4', sprite: MAHASISWA_SPRITES.biru, right: 110, bottom: 15, height: 116, z: 20, brightness: 0.84, delay: 0.26, lunge: 8 },
   { id: 'm-m5', sprite: MAHASISWA_SPRITES.hijau, right: 146, bottom: 14, height: 120, z: 20, brightness: 0.82, delay: 0.34, lunge: 7 },
 
-  // Lapis Depan (ujung tombak bentrokan langsung dengan tameng polisi)
+  // Lapis Depan
   { id: 'm-f1', sprite: MAHASISWA_SPRITES.merah, right: -8, bottom: 2, height: 124, z: 32, brightness: 1, delay: 0, lunge: 13 },
   { id: 'm-f2', sprite: MAHASISWA_SPRITES.biru, right: 24, bottom: 2, height: 122, z: 31, brightness: 1, delay: 0.07, lunge: 11 },
   { id: 'm-f3', sprite: MAHASISWA_SPRITES.hijau, right: 56, bottom: 3, height: 128, z: 30, brightness: 0.98, delay: 0.15, lunge: 10 },
@@ -73,7 +88,6 @@ const MAHASISWA_UNITS: MahasiswaSpec[] = [
 ]
 
 // Barisan Polisi Bertameng (Kanan -> menahan & mendorong ke Kiri, menghadap kiri)
-// Catatan: sprite polisi memiliki ruang transparan ~32px di depan tameng, sehingga left: -34 menempatkan tameng tepat di x = 0
 const POLISI_UNITS: PolisiSpec[] = [
   // Lapis Belakang
   { id: 'p-b1', left: -14, bottom: 26, height: 108, z: 11, brightness: 0.74, delay: 0.05, lunge: -8 },
@@ -89,7 +103,7 @@ const POLISI_UNITS: PolisiSpec[] = [
   { id: 'p-m4', left: 78, bottom: 15, height: 114, z: 19, brightness: 0.84, delay: 0.26, lunge: -7 },
   { id: 'p-m5', left: 112, bottom: 14, height: 114, z: 18, brightness: 0.82, delay: 0.34, lunge: -6 },
 
-  // Lapis Depan (dinding barikade tameng utama)
+  // Lapis Depan
   { id: 'p-f1', left: -34, bottom: 1, height: 122, z: 33, brightness: 1, delay: 0, lunge: -12 },
   { id: 'p-f2', left: 0, bottom: 1, height: 122, z: 31, brightness: 1, delay: 0.07, lunge: -10 },
   { id: 'p-f3', left: 34, bottom: 2, height: 122, z: 30, brightness: 0.98, delay: 0.15, lunge: -9 },
@@ -99,7 +113,7 @@ const POLISI_UNITS: PolisiSpec[] = [
 
 function VipColumn({ side, panic }: { side: 'opp' | 'gov'; panic: boolean }) {
   const list = VIPS.filter((v) => v.side === side)
-  const pos = side === 'opp' ? { left: '1.2%' } : { right: '1.2%' }
+  const pos = side === 'opp' ? { left: '1.5%' } : { right: '1.5%' }
   return (
     <div
       className="absolute top-2 bottom-7 z-40 flex flex-col justify-around items-center pointer-events-none"
@@ -113,7 +127,7 @@ function VipColumn({ side, panic }: { side: 'opp' | 'gov'; panic: boolean }) {
           transition={{ repeat: Infinity, duration: panic ? 0.25 : 2 }}
         >
           <VipAvatar vip={v} size={36} />
-          <div className="text-[8px] font-bold text-center leading-none mt-0.5 bg-black/75 border border-white/20 rounded px-1 py-0.5">
+          <div className="text-[8px] font-bold text-center leading-none mt-0.5 bg-black/80 border border-white/20 rounded px-1 py-0.5 shadow">
             {v.name.split(' ').slice(-1)[0]}
           </div>
         </motion.div>
@@ -237,35 +251,63 @@ function Formation() {
   )
 }
 
+const getLocation = (line: number) => {
+  if (line < 18) return { name: 'Penjara (Oposisi Terdesak!)', tag: '🔒 PENJARA' }
+  if (line < 38) return { name: 'Kampus Universitas', tag: '🎓 KAMPUS' }
+  if (line < 62) return { name: 'Silang Monas (Bentrokan Pusat)', tag: '🏛️ MONAS' }
+  if (line < 82) return { name: 'Gedung DPR / MPR', tag: '🏛️ GEDUNG DPR' }
+  return { name: 'Istana Negara (Pemerintah Terdesak!)', tag: '👑 ISTANA NEGARA' }
+}
+
 export default function Arena() {
   const { line, tapFx } = useGame()
-  const clash = 18 + line * 0.64 // posisi bentrokan dalam kontainer 150%
+
+  // Posisi kamera (geser horizon 0 s/d 2820px) mengikuti garis 0 s/d 100
+  const cameraX = (line / 100) * MAX_SCROLL
+
+  // Titik bentrokan di dalam dunia panjang (bergerak dari x=270 di Penjara ke x=3090 di Istana)
+  const clashX = 270 + cameraX
+
   const panicGov = line > 70
   const panicOpp = line < 30
+  const location = getLocation(line)
 
   return (
     <div className="h-full relative overflow-hidden bg-sky-300">
-      {/* Dunia Arena 150% Lebar Layar dengan Background Jalanan Kota */}
+      {/* Tokoh VIP di Sisi Kiri & Kanan Layar (Pinned Commander Pillars) */}
+      <VipColumn side="opp" panic={panicOpp} />
+      <VipColumn side="gov" panic={panicGov} />
+
+      {/* Dunia Arena Panjang (3360px) Berisi 5 Background Panoramik Bersambung */}
       <motion.div
-        className="absolute inset-y-0 left-0 bg-no-repeat"
-        style={{
-          width: '150%',
-          backgroundImage: "url('/assets/backgrounds/bg.png')",
-          backgroundSize: 'cover',
-          backgroundPosition: 'center bottom',
-        }}
-        animate={{ x: `${-(line / 100) * 33.333}%` }}
-        transition={{ type: 'spring', stiffness: 60, damping: 16 }}
+        className="absolute inset-y-0 left-0"
+        style={{ width: TOTAL_WORLD_WIDTH }}
+        animate={{ x: -cameraX }}
+        transition={{ type: 'spring', stiffness: 55, damping: 16 }}
       >
-        {/* Tokoh VIP di Belakang Barisan Kiri & Kanan */}
-        <VipColumn side="opp" panic={panicOpp} />
-        <VipColumn side="gov" panic={panicGov} />
+        {/* Rangkaian 5 Background: Penjara -> Kampus -> Monas -> DPR -> Istana */}
+        <div className="flex h-full select-none" style={{ width: TOTAL_WORLD_WIDTH }}>
+          {BG_STAGES.map((bg) => (
+            <img
+              key={bg.id}
+              src={bg.src}
+              alt={bg.name}
+              draggable={false}
+              className="h-full block select-none pointer-events-none shrink-0"
+              style={{
+                width: PANEL_WIDTH,
+                objectFit: 'cover',
+                objectPosition: 'center bottom',
+              }}
+            />
+          ))}
+        </div>
 
         {/* Titik Bentrokan Barisan Mahasiswa vs Polisi Bertameng */}
         <motion.div
           className="absolute bottom-[3%]"
-          animate={{ left: `${clash}%` }}
-          transition={{ type: 'spring', stiffness: 80, damping: 14 }}
+          style={{ left: clashX }}
+          transition={{ type: 'spring', stiffness: 75, damping: 14 }}
         >
           <Formation />
 
@@ -297,10 +339,14 @@ export default function Arena() {
         </motion.div>
       </motion.div>
 
-      {/* Label Indikator Arah Dorongan di Bawah Jalan */}
-      <div className="absolute bottom-1 inset-x-3 z-40 flex justify-between text-[9px] text-white/85 font-bold drop-shadow">
-        <span className="bg-black/45 px-1.5 py-0.5 rounded">◀ Desak ke Kiri (Pemerintah)</span>
-        <span className="bg-black/45 px-1.5 py-0.5 rounded">Desak ke Kanan (Oposisi) ▶</span>
+      {/* Bar Indikator Lokasi & Navigasi Arah Dorongan di Bawah Layar */}
+      <div className="absolute bottom-1 inset-x-2 z-40 flex items-center justify-between text-[9px] text-white/90 font-bold drop-shadow pointer-events-none">
+        <span className="bg-black/60 px-1.5 py-0.5 rounded border border-blue-500/40">◀ Penjara</span>
+        <span className="bg-black/80 px-2 py-0.5 rounded-full border border-yellow-400/60 text-yellow-300 shadow flex items-center gap-1">
+          <span>📍</span>
+          <span>{location.name}</span>
+        </span>
+        <span className="bg-black/60 px-1.5 py-0.5 rounded border border-red-500/40">Istana ▶</span>
       </div>
     </div>
   )

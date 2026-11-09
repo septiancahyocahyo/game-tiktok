@@ -41,10 +41,19 @@ Game interaktif vertikal 9:16 untuk TikTok Live berbasis *1D Horizontal Tug-of-W
    - Baris 2: Barometer dinamis persentase dorongan (`X% OPOSISI |⚡| Y% PEMERINTAH`).
    - Baris 3: Marquee merah komentar Pemerintah (`2 ...`) reverse direction.
 4. **Zona 4: Arena Bentrokan Kiri vs Kanan (30%) - `src/components/Arena.tsx`**
-   - Lebar dunia arena dibuat **150%** dari lebar layar dengan *Dynamic Sliding Camera* yang bergeser mengikuti garis dorongan.
-   - 6 Tokoh VIP berdiri di barisan belakang (Windah, Pandji, Ferry di kiri; Prabowo, Teddy, Bahlil di kanan). VIP panik/gemetar ketika barisan kubunya terdesak (>70% atau <30%).
-   - Barisan massa pendemo (bendera/toa) beradu fisik dengan barisan polisi huru-hara berperisai (riot shield).
-   - Efek visual status: Status Kebal (Shield Teddy), Lemah (Debuff Pandji), Lambat (Slow Bahlil).
+   - **Panorama 5 Landmark Bersambung (3360px):** Menggunakan 5 background horizontal berurutan:
+     - `bg-1.png`: **Penjara** (Kubu Oposisi terdesak / kalah)
+     - `bg-2.png`: **Kampus Universitas** (Basis mahasiswa pendemo)
+     - `bg-3.png`: **Silang Monas** (Titik awal bentrokan pusat 50%)
+     - `bg-4.png`: **Gedung DPR / MPR** (Basis kebijakan pemerintah)
+     - `bg-5.png`: **Istana Negara** (Kubu Pemerintah terdesak / kalah)
+   - Kamera meluncur dinamis (*smooth spring camera*) mengikuti pergeseran garis dorongan dari Penjara (0%) hingga Istana Negara (100%).
+   - Indikator lokasi real-time di bawah arena (`📍 Silang Monas`, `📍 Gedung DPR`, dst.).
+   - **Formasi Pasukan Berlapis:**
+     - 15 Personel Mahasiswa (Jaket Merah, Biru, Hijau) berbaris rapat 3 lapis mendorong ke kanan.
+     - 15 Personel Polisi Bertameng (`polisi-w-tameng.png`) dalam formasi barikade tameng rapat menahan dorongan ke kiri.
+     - Efek bentrokan partikel 💥, kepulan debu aspal 💨, dan bayangan pijakan 2.5D.
+   - 6 Tokoh VIP tersemat sebagai *Commander Pillars* di sudut kiri dan kanan layar, bereaksi panik/gemetar saat kubunya terdesak (>70% atau <30%).
    - Animasi floating avatar/like kecil saat penonton melakukan tap-tap layar.
 5. **Zona 5: HUD Bawah (30%) - `src/components/Hud.tsx`**
    - Sisi Kiri (60%): Latar gelap anti-tabrakan komentar TikTok, menampilkan katalog ringkas harga gift serta Leaderboard Top 3 MVP Gifter.
