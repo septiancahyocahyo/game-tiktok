@@ -138,7 +138,7 @@ function VipColumn({ side, panic }: { side: 'opp' | 'gov'; panic: boolean }) {
   )
 }
 
-/** Efek angin / asap di belakang barisan yang sedang mendorong kuat. dir: +1 = Oposisi (angin di kiri), -1 = Pemerintah (angin di kanan) */
+/** Efek angin / asap di belakang barisan yang sedang mendorong kuat. dir: +1 = Oposisi (dorong ke kanan), -1 = Pemerintah (dorong ke kiri) */
 function WindStreaks({ dir }: { dir: 1 | -1 }) {
   const streaks = useMemo(
     () => Array.from({ length: 9 }, (_, i) => ({
@@ -160,8 +160,8 @@ function WindStreaks({ dir }: { dir: 1 | -1 }) {
           className="absolute rounded-full"
           style={{
             width: s.w, height: 3, bottom: s.y,
-            left: back * (s.start + 120) - (back < 0 ? s.w : 0),
-            background: `linear-gradient(${dir === 1 ? '90deg' : '270deg'}, rgba(255,255,255,0), rgba(255,255,255,0.85))`,
+            left: dir === 1 ? -(s.start + 120 + s.w) : s.start + 120,
+            background: `linear-gradient(${dir === 1 ? '90deg' : '270deg'}, rgba(255,255,255,0), rgba(255,255,255,0.9))`,
             filter: 'blur(0.6px)',
           }}
           initial={{ opacity: 0, x: 0 }}
@@ -172,10 +172,18 @@ function WindStreaks({ dir }: { dir: 1 | -1 }) {
       {[0, 1, 2, 3].map((i) => (
         <motion.span
           key={`s${i}`}
-          className="absolute text-2xl"
-          style={{ bottom: 6 + i * 22, left: back * (150 + i * 28) - 12 }}
-          initial={{ opacity: 0, scale: 0.6, x: 0 }}
-          animate={{ opacity: [0, 0.85, 0], scale: [0.6, 1.5], x: [0, back * 40] }}
+          className="absolute text-2xl inline-block select-none pointer-events-none"
+          style={{
+            bottom: 6 + i * 22,
+            left: back * (150 + i * 28) - 12,
+          }}
+          initial={{ opacity: 0, scaleX: dir === 1 ? -0.6 : 0.6, scaleY: 0.6, x: 0 }}
+          animate={{
+            opacity: [0, 0.85, 0],
+            scaleX: dir === 1 ? [-0.6, -1.5] : [0.6, 1.5],
+            scaleY: [0.6, 1.5],
+            x: [0, dir * 55],
+          }}
           transition={{ duration: 0.8, delay: i * 0.07, ease: 'easeOut' }}
         >
           💨
@@ -320,10 +328,11 @@ function FloatingTugBar({ line }: { line: number }) {
   const activeIdx = line < 12.5 ? 0 : line < 37.5 ? 1 : line < 62.5 ? 2 : line < 87.5 ? 3 : 4
 
   return (
-    <div className="absolute top-1 left-1/2 -translate-x-1/2 z-40 w-[380px] pointer-events-none select-none">
-      <div className="relative flex flex-col items-center">
-        {/* === AREA ATAS: PIN BENTROKAN ⚔️ (Menunjuk ke Bawah seperti di gambar) === */}
-        <div className="relative w-full h-8 px-4">
+    <div className="absolute top-1 left-1/2 -translate-x-1/2 z-40 w-[380px] pointer-events-none select-none flex justify-center">
+      {/* Container utama dengan lebar 348px yang persis sama untuk Pin Atas, Bar Tengah, dan Pin Bawah */}
+      <div className="relative w-[348px] flex flex-col items-center">
+        {/* === AREA ATAS: PIN BENTROKAN ⚔️ (Menunjuk ke Bawah persis ke garis kuning) === */}
+        <div className="relative w-full h-8">
           <div
             className="absolute top-0 flex flex-col items-center transition-all duration-150"
             style={{ left: `${line}%`, transform: 'translateX(-50%)' }}
@@ -332,13 +341,13 @@ function FloatingTugBar({ line }: { line: number }) {
             <div className="w-7 h-7 rounded-full bg-slate-900 border-2 border-yellow-400 shadow-[0_0_10px_#fde047] flex items-center justify-center text-xs animate-pulse">
               ⚔️
             </div>
-            {/* Jarum / Segitiga Menunjuk ke Bawah (Menempel ke Bar) */}
+            {/* Jarum / Segitiga Menunjuk ke Bawah (Menempel ke Bar & tepat di atas garis kuning) */}
             <div className="w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[6px] border-t-yellow-400" />
           </div>
         </div>
 
         {/* === AREA TENGAH: PROGRESS BAR DENGAN 4 SEGMEN (DIVIDER) === */}
-        <div className="relative w-full px-4">
+        <div className="relative w-full">
           <div className="relative h-6 w-full rounded-md bg-slate-900/90 border-2 border-slate-950 shadow-xl overflow-hidden backdrop-blur-sm flex items-center">
             {/* Isi Oposisi (Biru) dari Kiri */}
             <div
@@ -374,7 +383,7 @@ function FloatingTugBar({ line }: { line: number }) {
         </div>
 
         {/* === AREA BAWAH: 5 PIN CHECKPOINT (Menunjuk ke Atas seperti di gambar) === */}
-        <div className="relative w-full px-4 pt-0">
+        <div className="relative w-full pt-0">
           <div className="relative w-full flex justify-between">
             {CHECKPOINTS.map((cp, idx) => {
               const isActive = idx === activeIdx
