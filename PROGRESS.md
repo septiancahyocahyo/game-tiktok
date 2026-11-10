@@ -36,11 +36,20 @@ Game interaktif vertikal 9:16 untuk TikTok Live berbasis *1D Horizontal Tug-of-W
      - **Mayor Teddy:** Tameng pelindung baret merah (`pop`).
      - **Bahlil:** Gas melon dan map kebijakan terbang ke kiri (`flyLeft`).
    - Dilengkapi sistem antrean (*queue*) jika beberapa gift masuk bersamaan.
-3. **Zona 3: 3 Running Text Komentar (10%) - `src/components/RunningText.tsx`**
+3. **Zona 3: 2 Running Text Komentar (10%) - `src/components/RunningText.tsx`**
    - Baris 1: Marquee biru komentar Oposisi (`1 ...`).
-   - Baris 2: Barometer dinamis persentase dorongan (`X% OPOSISI |⚡| Y% PEMERINTAH`).
-   - Baris 3: Marquee merah komentar Pemerintah (`2 ...`) reverse direction.
+   - Baris 2: Marquee merah komentar Pemerintah (`2 ...`) reverse direction.
+   - Barometer persentase telah dipindahkan ke floating HUD di atas arena game.
 4. **Zona 4: Arena Bentrokan Kiri vs Kanan (30%) - `src/components/Arena.tsx`**
+   - **Floating Checkpoint & Tug-of-War HUD (Tengah Atas):**
+     - Skor persentase live: `🔵 OPOSISI {opp}%` vs `{gov}% PEMERINTAH 🔴`.
+     - 5 Checkpoint bangunan lengkap dengan ikon transparansi asli dari `public/assets/buildings/`:
+       - **0%:** Penjara (`penjara.png`)
+       - **25%:** Universitas (`universitas.png`)
+       - **50%:** Silang Monas (`monas.png`)
+       - **75%:** Gedung DPR (`gedung-dpr.png`)
+       - **100%:** Istana Negara (`istana-negara.png`)
+     - Marker bentrokan `⚡` dinamis yang bergerak real-time di sepanjang track progress bar dan highlight emas pada checkpoint yang sedang aktif.
    - **Panorama 5 Landmark Bersambung (3360px):** Menggunakan 5 background horizontal berurutan:
      - `bg-1.png`: **Penjara** (Kubu Oposisi terdesak / kalah)
      - `bg-2.png`: **Kampus Universitas** (Basis mahasiswa pendemo)

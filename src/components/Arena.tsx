@@ -1,4 +1,5 @@
-import { AnimatePresence, motion } from 'framer-motion'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { AnimatePresence, motion, useMotionValue, useSpring, useTransform } from 'framer-motion'
 import { VIPS, type Vip } from '../data'
 import { useGame } from '../store'
 import VipAvatar from './VipAvatar'
@@ -136,18 +137,69 @@ function VipColumn({ side, panic }: { side: 'opp' | 'gov'; panic: boolean }) {
   )
 }
 
-function Formation() {
+/** Efek angin / asap di belakang barisan yang sedang mendorong kuat. dir: +1 = Oposisi (angin di kiri), -1 = Pemerintah (angin di kanan) */
+function WindStreaks({ dir }: { dir: 1 | -1 }) {
+  const streaks = useMemo(
+    () => Array.from({ length: 9 }, (_, i) => ({
+      y: 8 + ((i * 37) % 110),
+      w: 46 + ((i * 29) % 56),
+      start: 60 + ((i * 23) % 70),
+      delay: (i % 5) * 0.06,
+      dur: 0.45 + ((i * 13) % 25) / 100,
+    })),
+    [],
+  )
+  // Sisi belakang barisan: Oposisi di kiri titik bentrok, Pemerintah di kanan
+  const back = -dir
+  return (
+    <div className="absolute w-0 h-0 pointer-events-none" style={{ bottom: 0, left: 0, zIndex: 45 }}>
+      {streaks.map((s, i) => (
+        <motion.div
+          key={i}
+          className="absolute rounded-full"
+          style={{
+            width: s.w, height: 3, bottom: s.y,
+            left: back * (s.start + 120) - (back < 0 ? s.w : 0),
+            background: `linear-gradient(${dir === 1 ? '90deg' : '270deg'}, rgba(255,255,255,0), rgba(255,255,255,0.85))`,
+            filter: 'blur(0.6px)',
+          }}
+          initial={{ opacity: 0, x: 0 }}
+          animate={{ opacity: [0, 0.9, 0], x: [0, dir * 70] }}
+          transition={{ duration: s.dur, delay: s.delay, ease: 'easeOut' }}
+        />
+      ))}
+      {[0, 1, 2, 3].map((i) => (
+        <motion.span
+          key={`s${i}`}
+          className="absolute text-2xl"
+          style={{ bottom: 6 + i * 22, left: back * (150 + i * 28) - 12 }}
+          initial={{ opacity: 0, scale: 0.6, x: 0 }}
+          animate={{ opacity: [0, 0.85, 0], scale: [0.6, 1.5], x: [0, back * 40] }}
+          transition={{ duration: 0.8, delay: i * 0.07, ease: 'easeOut' }}
+        >
+          💨
+        </motion.span>
+      ))}
+    </div>
+  )
+}
+
+function Formation({ surge }: { surge: 0 | 1 | -1 }) {
   const { shieldUntil, weakUntil, slowUntil, rushUntil, now } = useGame()
   const shield = shieldUntil > now
   const weak = weakUntil > now
   const slow = slowUntil > now
   const rush = rushUntil > now
 
-  const oppDuration = slow ? 1.05 : rush ? 0.3 : 0.48
-  const govDuration = weak ? 0.95 : rush ? 0.32 : 0.5
+  // Saat dorongan kuat, barisan yang mendorong bergerak lebih cepat (tanpa berpindah tempat)
+  const oppDuration = (slow ? 1.05 : rush ? 0.3 : 0.48) * (surge === 1 ? 0.55 : 1)
+  const govDuration = (weak ? 0.95 : rush ? 0.32 : 0.5) * (surge === -1 ? 0.55 : 1)
+  const oppBoost = surge === 1 ? 1.6 : 1
+  const govBoost = surge === -1 ? 1.6 : 1
 
   return (
     <div className="relative w-0 h-0">
+      {surge !== 0 && <WindStreaks key={`${surge}-${now > 0 ? Math.floor(now / 700) : 0}`} dir={surge} />}
       {/* Bayangan permukaan aspal di bawah kedua barisan */}
       <div
         className="absolute pointer-events-none rounded-full bg-black/50 blur-md"
@@ -171,7 +223,7 @@ function Formation() {
               filter: `brightness(${u.brightness}) drop-shadow(0 3px 4px rgba(0,0,0,0.45))`,
             }}
             animate={{
-              x: [0, u.lunge, -3, 0],
+              x: [0, u.lunge * oppBoost, -3, 0],
               y: [0, -2.5, 0, 0],
               rotate: [0, 4, -1.5, 0],
             }}
@@ -202,7 +254,7 @@ function Formation() {
               filter: `brightness(${u.brightness}) drop-shadow(0 3px 4px rgba(0,0,0,0.5))`,
             }}
             animate={{
-              x: [0, u.lunge, 3, 0],
+              x: [0, u.lunge * govBoost, 3, 0],
               y: [0, -2, 0, 0],
               rotate: [0, -3.5, 1, 0],
             }}
@@ -251,26 +303,132 @@ function Formation() {
   )
 }
 
-const getLocation = (line: number) => {
-  if (line < 18) return { name: 'Penjara (Oposisi Terdesak!)', tag: '🔒 PENJARA' }
-  if (line < 38) return { name: 'Kampus Universitas', tag: '🎓 KAMPUS' }
-  if (line < 62) return { name: 'Silang Monas (Bentrokan Pusat)', tag: '🏛️ MONAS' }
-  if (line < 82) return { name: 'Gedung DPR / MPR', tag: '🏛️ GEDUNG DPR' }
-  return { name: 'Istana Negara (Pemerintah Terdesak!)', tag: '👑 ISTANA NEGARA' }
+const CHECKPOINTS = [
+  { percent: 0, name: 'Penjara', label: '0%', img: '/assets/buildings/penjara.png' },
+  { percent: 25, name: 'Universitas', label: '25%', img: '/assets/buildings/universitas.png' },
+  { percent: 50, name: 'Monas', label: '50%', img: '/assets/buildings/monas.png' },
+  { percent: 75, name: 'Gedung DPR', label: '75%', img: '/assets/buildings/gedung-dpr.png' },
+  { percent: 100, name: 'Istana Negara', label: '100%', img: '/assets/buildings/istana-negara.png' },
+]
+
+function FloatingTugBar({ line }: { line: number }) {
+  const opp = Math.round(line)
+  const gov = 100 - opp
+
+  // Cari checkpoint terdekat
+  const activeIdx = line < 12.5 ? 0 : line < 37.5 ? 1 : line < 62.5 ? 2 : line < 87.5 ? 3 : 4
+
+  return (
+    <div className="absolute top-1.5 left-1/2 -translate-x-1/2 z-40 w-[380px] pointer-events-none select-none">
+      <div className="bg-slate-950/85 backdrop-blur-md rounded-xl px-3 py-1.5 border border-white/20 shadow-2xl flex flex-col gap-1">
+        {/* Baris Atas: Skor Persentase & Status Titik Bentrokan */}
+        <div className="flex items-center justify-between font-black text-xs">
+          <div className="flex items-center gap-1.5 bg-blue-600/85 text-white px-2 py-0.5 rounded shadow border border-blue-400/50">
+            <span className="text-[10px]">🔵</span>
+            <span>OPOSISI</span>
+            <span className="text-yellow-300 font-extrabold ml-0.5">{opp}%</span>
+          </div>
+
+          <div className="text-[10px] text-white/80 font-black flex items-center gap-1 bg-black/60 px-2 py-0.5 rounded-full border border-white/15">
+            <span>⚡</span>
+            <span className="text-yellow-400 uppercase tracking-wide">{CHECKPOINTS[activeIdx].name}</span>
+            <span>⚡</span>
+          </div>
+
+          <div className="flex items-center gap-1.5 bg-red-600/85 text-white px-2 py-0.5 rounded shadow border border-red-400/50">
+            <span className="text-yellow-300 font-extrabold mr-0.5">{gov}%</span>
+            <span>PEMERINTAH</span>
+            <span className="text-[10px]">🔴</span>
+          </div>
+        </div>
+
+        {/* Track Dorongan dengan 5 Checkpoint Gedung */}
+        <div className="relative pt-0.5 pb-5 mx-3.5 mt-0.5">
+          {/* Garis Bar Tug-of-War */}
+          <div className="relative h-2 w-full rounded-full bg-slate-800 border border-white/20 overflow-hidden shadow-inner">
+            <div
+              className="absolute inset-y-0 left-0 bg-gradient-to-r from-blue-600 to-cyan-400 transition-all duration-150"
+              style={{ width: `${line}%` }}
+            />
+            <div
+              className="absolute inset-y-0 right-0 bg-gradient-to-l from-red-600 to-orange-400 transition-all duration-150"
+              style={{ width: `${100 - line}%` }}
+            />
+          </div>
+
+          {/* Marker Titik Bentrokan Bergerak Dinamis */}
+          <div
+            className="absolute top-0 -mt-1 transition-all duration-150 z-30"
+            style={{ left: `${line}%`, transform: 'translateX(-50%)' }}
+          >
+            <div className="w-4 h-4 rounded-full bg-yellow-300 border-2 border-white shadow-[0_0_10px_#fde047] flex items-center justify-center text-[8px] animate-pulse">
+              ⚡
+            </div>
+          </div>
+
+          {/* 5 Checkpoint Gedung */}
+          <div className="absolute inset-x-0 top-3 flex justify-between">
+            {CHECKPOINTS.map((cp, idx) => {
+              const isActive = idx === activeIdx
+              return (
+                <div key={cp.name} className="flex flex-col items-center" style={{ width: 0 }}>
+                  <div
+                    className={`w-6 h-6 rounded-md p-0.5 flex items-center justify-center transition-all duration-200 shadow-md ${
+                      isActive
+                        ? 'bg-yellow-400/25 border-2 border-yellow-300 scale-110 shadow-[0_0_8px_rgba(250,204,21,0.8)]'
+                        : 'bg-slate-900/90 border border-white/30 opacity-70'
+                    }`}
+                  >
+                    <img
+                      src={cp.img}
+                      alt={cp.name}
+                      className="w-full h-full object-contain filter drop-shadow"
+                    />
+                  </div>
+                  <span
+                    className={`text-[7.5px] font-bold tracking-tighter leading-none mt-0.5 whitespace-nowrap drop-shadow ${
+                      isActive ? 'text-yellow-300 font-extrabold' : 'text-white/70'
+                    }`}
+                  >
+                    {cp.label} {cp.name}
+                  </span>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
 }
 
 export default function Arena() {
   const { line, tapFx } = useGame()
 
-  // Posisi kamera (geser horizon 0 s/d 2820px) mengikuti garis 0 s/d 100
-  const cameraX = (line / 100) * MAX_SCROLL
+  // Garis dihaluskan dengan spring sehingga kamera DAN barisan bergerak mulus bersama (tanpa teleport)
+  const lineMV = useMotionValue(line)
+  const smoothLine = useSpring(lineMV, { stiffness: 38, damping: 15, mass: 1 })
+  useEffect(() => { lineMV.set(line) }, [line, lineMV])
 
-  // Titik bentrokan di dalam dunia panjang (bergerak dari x=270 di Penjara ke x=3090 di Istana)
-  const clashX = 270 + cameraX
+  const worldX = useTransform(smoothLine, (v) => -(v / 100) * MAX_SCROLL)
+  // Titik bentrokan di dunia panjang (x=270 di Penjara ke x=3090 di Istana)
+  const clashLeft = useTransform(smoothLine, (v) => 270 + (v / 100) * MAX_SCROLL)
+
+  // Deteksi dorongan kuat (tap x10, gift, skill) untuk memicu efek angin/asap
+  const prevLine = useRef(line)
+  const [surge, setSurge] = useState<0 | 1 | -1>(0)
+  useEffect(() => {
+    const d = line - prevLine.current
+    prevLine.current = line
+    if (Math.abs(d) >= 1.5 && Math.abs(d) < 20) {
+      setSurge(d > 0 ? 1 : -1)
+      const t = setTimeout(() => setSurge(0), 900)
+      return () => clearTimeout(t)
+    }
+  }, [line])
 
   const panicGov = line > 70
   const panicOpp = line < 30
-  const location = getLocation(line)
 
   return (
     <div className="h-full relative overflow-hidden bg-sky-300">
@@ -278,12 +436,13 @@ export default function Arena() {
       <VipColumn side="opp" panic={panicOpp} />
       <VipColumn side="gov" panic={panicGov} />
 
+      {/* Floating Checkpoints & Tug-of-War Bar di Tengah Atas Game */}
+      <FloatingTugBar line={line} />
+
       {/* Dunia Arena Panjang (3360px) Berisi 5 Background Panoramik Bersambung */}
       <motion.div
         className="absolute inset-y-0 left-0 bg-slate-900"
-        style={{ width: TOTAL_WORLD_WIDTH }}
-        animate={{ x: -cameraX }}
-        transition={{ type: 'spring', stiffness: 55, damping: 16 }}
+        style={{ width: TOTAL_WORLD_WIDTH, x: worldX }}
       >
         {/* Rangkaian 5 Background: Penjara -> Kampus -> Monas -> DPR -> Istana */}
         <div className="flex h-full select-none" style={{ width: TOTAL_WORLD_WIDTH }}>
@@ -306,10 +465,9 @@ export default function Arena() {
         {/* Titik Bentrokan Barisan Mahasiswa vs Polisi Bertameng */}
         <motion.div
           className="absolute bottom-[3%]"
-          style={{ left: clashX }}
-          transition={{ type: 'spring', stiffness: 75, damping: 14 }}
+          style={{ left: clashLeft }}
         >
-          <Formation />
+          <Formation surge={surge} />
 
           {/* Floating Avatar Penonton saat Tap-Tap Layar */}
           <AnimatePresence>
@@ -339,14 +497,10 @@ export default function Arena() {
         </motion.div>
       </motion.div>
 
-      {/* Bar Indikator Lokasi & Navigasi Arah Dorongan di Bawah Layar */}
-      <div className="absolute bottom-1 inset-x-2 z-40 flex items-center justify-between text-[9px] text-white/90 font-bold drop-shadow pointer-events-none">
-        <span className="bg-black/60 px-1.5 py-0.5 rounded border border-blue-500/40">◀ Penjara</span>
-        <span className="bg-black/80 px-2 py-0.5 rounded-full border border-yellow-400/60 text-yellow-300 shadow flex items-center gap-1">
-          <span>📍</span>
-          <span>{location.name}</span>
-        </span>
-        <span className="bg-black/60 px-1.5 py-0.5 rounded border border-red-500/40">Istana ▶</span>
+      {/* Indikator Arah Dorongan di Bawah Layar */}
+      <div className="absolute bottom-1 inset-x-3 z-40 flex items-center justify-between text-[8.5px] text-white/75 font-bold drop-shadow pointer-events-none">
+        <span className="bg-black/55 px-2 py-0.5 rounded border border-blue-500/30">◀ Dorong ke Penjara</span>
+        <span className="bg-black/55 px-2 py-0.5 rounded border border-red-500/30">Dorong ke Istana ▶</span>
       </div>
     </div>
   )

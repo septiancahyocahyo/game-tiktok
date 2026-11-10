@@ -8,7 +8,7 @@ function Strip({ list, color, rev }: { list: Comment[]; color: string; rev?: boo
   ))
   return (
     <div className={`flex-1 flex items-center overflow-hidden ${color}`}>
-      <span className="px-1.5 font-black text-sm shrink-0 bg-black/30 h-full flex items-center">{rev ? '<<' : '>>'}</span>
+      <span className="px-2 font-black text-xs shrink-0 bg-black/40 h-full flex items-center">{rev ? '<<' : '>>'}</span>
       <div className="overflow-hidden flex-1">
         <div className={`marquee ${rev ? 'rev' : ''}`}>
           <span className="inline-flex">{content}</span>
@@ -20,20 +20,11 @@ function Strip({ list, color, rev }: { list: Comment[]; color: string; rev?: boo
 }
 
 export default function RunningText() {
-  const { oppComments, govComments, line } = useGame()
-  const opp = Math.round(line)
+  const { oppComments, govComments } = useGame()
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col justify-stretch">
       <Strip list={oppComments} color="bg-blue-700" />
-      <div className="flex-1 relative bg-slate-900 flex items-center text-[11px] font-black">
-        <div className="absolute inset-y-0 left-0 bg-blue-500 transition-all duration-200" style={{ width: `${line}%` }} />
-        <div className="absolute inset-y-0 right-0 bg-red-500 transition-all duration-200" style={{ width: `${100 - line}%` }} />
-        <div className="relative z-10 flex w-full justify-between px-2 drop-shadow">
-          <span>⬅️ OPOSISI {opp}%</span><span>⚡</span><span>{100 - opp}% PEMERINTAH ➡️</span>
-        </div>
-      </div>
       <Strip list={govComments} color="bg-red-700" rev />
     </div>
   )
 }
-
