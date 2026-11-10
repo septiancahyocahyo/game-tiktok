@@ -319,64 +319,76 @@ function FloatingTugBar({ line }: { line: number }) {
   const activeIdx = line < 12.5 ? 0 : line < 37.5 ? 1 : line < 62.5 ? 2 : line < 87.5 ? 3 : 4
 
   return (
-    <div className="absolute top-1.5 left-1/2 -translate-x-1/2 z-40 w-[380px] pointer-events-none select-none">
-      <div className="bg-slate-950/85 backdrop-blur-md rounded-xl px-3 py-1.5 border border-white/20 shadow-2xl flex flex-col gap-1">
-        {/* Baris Atas: Skor Persentase & Status Titik Bentrokan */}
-        <div className="flex items-center justify-between font-black text-xs">
-          <div className="flex items-center gap-1.5 bg-blue-600/85 text-white px-2 py-0.5 rounded shadow border border-blue-400/50">
-            <span className="text-[10px]">🔵</span>
-            <span>OPOSISI</span>
-            <span className="text-yellow-300 font-extrabold ml-0.5">{opp}%</span>
-          </div>
-
-          <div className="text-[10px] text-white/80 font-black flex items-center gap-1 bg-black/60 px-2 py-0.5 rounded-full border border-white/15">
-            <span>⚡</span>
-            <span className="text-yellow-400 uppercase tracking-wide">{CHECKPOINTS[activeIdx].name}</span>
-            <span>⚡</span>
-          </div>
-
-          <div className="flex items-center gap-1.5 bg-red-600/85 text-white px-2 py-0.5 rounded shadow border border-red-400/50">
-            <span className="text-yellow-300 font-extrabold mr-0.5">{gov}%</span>
-            <span>PEMERINTAH</span>
-            <span className="text-[10px]">🔴</span>
+    <div className="absolute top-1 left-1/2 -translate-x-1/2 z-40 w-[380px] pointer-events-none select-none">
+      <div className="relative flex flex-col items-center">
+        {/* === AREA ATAS: PIN BENTROKAN ⚔️ (Menunjuk ke Bawah seperti di gambar) === */}
+        <div className="relative w-full h-8 px-4">
+          <div
+            className="absolute top-0 flex flex-col items-center transition-all duration-150"
+            style={{ left: `${line}%`, transform: 'translateX(-50%)' }}
+          >
+            {/* Gelembung Bulat dengan Ikon Pedang Bentrok ⚔️ */}
+            <div className="w-7 h-7 rounded-full bg-slate-900 border-2 border-yellow-400 shadow-[0_0_10px_#fde047] flex items-center justify-center text-xs animate-pulse">
+              ⚔️
+            </div>
+            {/* Jarum / Segitiga Menunjuk ke Bawah (Menempel ke Bar) */}
+            <div className="w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[6px] border-t-yellow-400" />
           </div>
         </div>
 
-        {/* Track Dorongan dengan 5 Checkpoint Gedung */}
-        <div className="relative pt-0.5 pb-5 mx-3.5 mt-0.5">
-          {/* Garis Bar Tug-of-War */}
-          <div className="relative h-2 w-full rounded-full bg-slate-800 border border-white/20 overflow-hidden shadow-inner">
+        {/* === AREA TENGAH: PROGRESS BAR DENGAN 4 SEGMEN (DIVIDER) === */}
+        <div className="relative w-full px-4">
+          <div className="relative h-6 w-full rounded-md bg-slate-900/90 border-2 border-slate-950 shadow-xl overflow-hidden backdrop-blur-sm flex items-center">
+            {/* Isi Oposisi (Biru) dari Kiri */}
             <div
-              className="absolute inset-y-0 left-0 bg-gradient-to-r from-blue-600 to-cyan-400 transition-all duration-150"
+              className="absolute inset-y-0 left-0 bg-gradient-to-r from-blue-700 via-blue-600 to-cyan-500 transition-all duration-150 flex items-center px-2"
               style={{ width: `${line}%` }}
-            />
-            <div
-              className="absolute inset-y-0 right-0 bg-gradient-to-l from-red-600 to-orange-400 transition-all duration-150"
-              style={{ width: `${100 - line}%` }}
-            />
-          </div>
-
-          {/* Marker Titik Bentrokan Bergerak Dinamis */}
-          <div
-            className="absolute top-0 -mt-1 transition-all duration-150 z-30"
-            style={{ left: `${line}%`, transform: 'translateX(-50%)' }}
-          >
-            <div className="w-4 h-4 rounded-full bg-yellow-300 border-2 border-white shadow-[0_0_10px_#fde047] flex items-center justify-center text-[8px] animate-pulse">
-              ⚡
+            >
+              <span className="text-[10px] font-black text-white drop-shadow whitespace-nowrap">
+                🔵 {opp}%
+              </span>
             </div>
-          </div>
 
-          {/* 5 Checkpoint Gedung */}
-          <div className="absolute inset-x-0 top-3 flex justify-between">
+            {/* Isi Pemerintah (Merah) dari Kanan */}
+            <div
+              className="absolute inset-y-0 right-0 bg-gradient-to-l from-red-700 via-red-600 to-orange-500 transition-all duration-150 flex items-center justify-end px-2"
+              style={{ width: `${100 - line}%` }}
+            >
+              <span className="text-[10px] font-black text-white drop-shadow whitespace-nowrap">
+                {gov}% 🔴
+              </span>
+            </div>
+
+            {/* Garis Pembatas Vertikal (Dividers pada 25%, 50%, 75% sesuai gambar sketsa) */}
+            <div className="absolute inset-y-0 left-[25%] w-[1.5px] bg-slate-950/80 z-10 shadow" />
+            <div className="absolute inset-y-0 left-[50%] w-[2px] bg-slate-950 z-10 shadow" />
+            <div className="absolute inset-y-0 left-[75%] w-[1.5px] bg-slate-950/80 z-10 shadow" />
+          </div>
+        </div>
+
+        {/* === AREA BAWAH: 5 PIN CHECKPOINT (Menunjuk ke Atas seperti di gambar) === */}
+        <div className="relative w-full px-4 pt-0">
+          <div className="relative w-full flex justify-between">
             {CHECKPOINTS.map((cp, idx) => {
               const isActive = idx === activeIdx
               return (
-                <div key={cp.name} className="flex flex-col items-center" style={{ width: 0 }}>
+                <div
+                  key={cp.name}
+                  className="flex flex-col items-center"
+                  style={{ width: 0 }}
+                >
+                  {/* Jarum / Segitiga Menunjuk ke Atas (Menempel ke Bawah Bar) */}
                   <div
-                    className={`w-6 h-6 rounded-md p-0.5 flex items-center justify-center transition-all duration-200 shadow-md ${
+                    className={`w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-b-[6px] transition-colors duration-200 ${
+                      isActive ? 'border-b-yellow-400' : 'border-b-slate-700'
+                    }`}
+                  />
+                  {/* Gelembung Bulat Pin Checkpoint */}
+                  <div
+                    className={`w-8 h-8 rounded-full p-1 flex items-center justify-center transition-all duration-200 shadow-lg ${
                       isActive
-                        ? 'bg-yellow-400/25 border-2 border-yellow-300 scale-110 shadow-[0_0_8px_rgba(250,204,21,0.8)]'
-                        : 'bg-slate-900/90 border border-white/30 opacity-70'
+                        ? 'bg-slate-900 border-2 border-yellow-400 scale-110 shadow-[0_0_10px_rgba(250,204,21,0.9)]'
+                        : 'bg-slate-900/95 border-2 border-slate-700 opacity-80'
                     }`}
                   >
                     <img
@@ -385,12 +397,13 @@ function FloatingTugBar({ line }: { line: number }) {
                       className="w-full h-full object-contain filter drop-shadow"
                     />
                   </div>
+                  {/* Label Nama Bangunan */}
                   <span
-                    className={`text-[7.5px] font-bold tracking-tighter leading-none mt-0.5 whitespace-nowrap drop-shadow ${
-                      isActive ? 'text-yellow-300 font-extrabold' : 'text-white/70'
+                    className={`text-[8px] font-black tracking-tight leading-none mt-1 whitespace-nowrap drop-shadow ${
+                      isActive ? 'text-yellow-300 font-extrabold' : 'text-white/80'
                     }`}
                   >
-                    {cp.label} {cp.name}
+                    {cp.name}
                   </span>
                 </div>
               )
