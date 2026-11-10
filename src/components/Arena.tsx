@@ -152,6 +152,11 @@ function WindStreaks({ dir }: { dir: 1 | -1 }) {
   )
   // Sisi belakang barisan: Oposisi di kiri titik bentrok, Pemerintah di kanan
   const back = -dir
+  // Arah hembusan angin/asap berlawanan dengan arah gerak dorongan (-dir)
+  // Oposisi dorong ke kanan -> angin/asap bergerak ke kiri (-1)
+  // Pemerintah dorong ke kiri -> angin/asap bergerak ke kanan (+1)
+  const windDir = -dir
+
   return (
     <div className="absolute w-0 h-0 pointer-events-none" style={{ bottom: 0, left: 0, zIndex: 45 }}>
       {streaks.map((s, i) => (
@@ -161,11 +166,11 @@ function WindStreaks({ dir }: { dir: 1 | -1 }) {
           style={{
             width: s.w, height: 3, bottom: s.y,
             left: dir === 1 ? -(s.start + 120 + s.w) : s.start + 120,
-            background: `linear-gradient(${dir === 1 ? '90deg' : '270deg'}, rgba(255,255,255,0), rgba(255,255,255,0.9))`,
+            background: `linear-gradient(${windDir === 1 ? '90deg' : '270deg'}, rgba(255,255,255,0), rgba(255,255,255,0.9))`,
             filter: 'blur(0.6px)',
           }}
           initial={{ opacity: 0, x: 0 }}
-          animate={{ opacity: [0, 0.9, 0], x: [0, dir * 70] }}
+          animate={{ opacity: [0, 0.9, 0], x: [0, windDir * 70] }}
           transition={{ duration: s.dur, delay: s.delay, ease: 'easeOut' }}
         />
       ))}
@@ -182,7 +187,7 @@ function WindStreaks({ dir }: { dir: 1 | -1 }) {
             opacity: [0, 0.85, 0],
             scaleX: dir === 1 ? [-0.6, -1.5] : [0.6, 1.5],
             scaleY: [0.6, 1.5],
-            x: [0, dir * 55],
+            x: [0, windDir * 55],
           }}
           transition={{ duration: 0.8, delay: i * 0.07, ease: 'easeOut' }}
         >
