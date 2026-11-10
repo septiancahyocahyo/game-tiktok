@@ -55,10 +55,10 @@ function Playing({ sk }: { sk: Skill }) {
       <div className={`absolute inset-0 flex items-center gap-3 px-4 ${left ? '' : 'flex-row-reverse text-right'}`}>
         <motion.div
           initial={{ x: left ? -200 : 200, scale: 0.4 }}
-          animate={{ x: 0, scale: [1, 1.12, 1] }}
+          animate={{ x: 0, scale: [1, 1.1, 1] }}
           transition={{ x: { type: 'spring', stiffness: 120, damping: 12 }, scale: { repeat: Infinity, duration: 0.7 } }}
         >
-          <VipAvatar vip={vip} size={120} glow />
+          <VipAvatar vip={vip} size={96} glow />
         </motion.div>
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="flex-1 min-w-0">
           {sk.light && <div className="inline-block text-[10px] bg-yellow-400 text-black font-bold rounded px-1.5 mb-1">PREVIEW GRATIS</div>}

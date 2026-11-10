@@ -26,38 +26,35 @@ Game interaktif vertikal 9:16 untuk TikTok Live berbasis *1D Horizontal Tug-of-W
 1. **Zona 1: Header & Instruksi (8%) - `src/components/Header.tsx`**
    - Skor ronde live Oposisi 🔵 vs Pemerintah 🔴.
    - Kotak instruksi cepat penonton: `Ketik "1 [Pesan]"` vs `Ketik "2 [Pesan]"`.
-2. **Zona 2: Panggung Animasi Utama / Skill Stage (22%) - `src/components/SkillStage.tsx`**
+2. **Zona 2: Panggung Animasi Utama / Skill Stage (17%) - `src/components/SkillStage.tsx`**
    - State *Idle*: Menampilkan 6 tokoh VIP bergerak halus (floating) mengajak penonton kirim gift.
-   - State *Playing*: Cutscene dramatis saat gift/skill dipicu. Avatar VIP berukuran besar (120px) muncul dengan animasi spring, badge pengirim `@username`, nama skill, dan partikel animasi unik per VIP:
-     - **Windah:** Ribuan bocil kematian berlari dari kiri ke kanan (`runRight`).
-     - **Pandji:** Tawa, mikrofon, roasting naik dari bawah (`rise`).
-     - **Ferry:** Data, statistik, grafik popping (`pop`).
-     - **Prabowo:** Paket bantuan, tarian gemoy hujan dari atas (`rain`).
-     - **Mayor Teddy:** Tameng pelindung baret merah (`pop`).
-     - **Bahlil:** Gas melon dan map kebijakan terbang ke kiri (`flyLeft`).
-   - Dilengkapi sistem antrean (*queue*) jika beberapa gift masuk bersamaan.
-3. **Zona 3: 2 Running Text Komentar (10%) - `src/components/RunningText.tsx`**
+   - State *Playing*: Cutscene dramatis saat gift/skill dipicu. Avatar VIP berukuran 96px muncul dengan animasi spring, badge pengirim `@username`, nama skill, dan partikel animasi unik per VIP.
+3. **Zona 3: 2 Running Text Komentar (8%) - `src/components/RunningText.tsx`**
    - Baris 1: Marquee biru komentar Oposisi (`1 ...`).
    - Baris 2: Marquee merah komentar Pemerintah (`2 ...`) reverse direction.
-   - Barometer persentase telah dipindahkan ke floating HUD di atas arena game.
-4. **Zona 4: Arena Bentrokan Kiri vs Kanan (30%) - `src/components/Arena.tsx`**
+4. **Zona 4: Arena Bentrokan Kiri vs Kanan (Diperlebar menjadi 44%) - `src/components/Arena.tsx`**
+   - **Tinggi Arena Diperluas ke 44% (~422px):** Mengambil ruang dari panggung skill dan HUD bawah sehingga arena terasa lapang, megah, dan proporsional.
+   - **Garis Kuning Pembatas Bar:** Tepat di perbatasan antara bar biru dan merah, terdapat garis pembatas kuning neon menyala (`w-[2.5px] bg-yellow-400 shadow-[0_0_8px_#fde047]`) yang sinkron dengan pin bentrokan pedang `⚔️` di atasnya.
+   - **Animasi Dorongan Lebih Berbobot & Lambat:** Gerakan maju-mundur (*lunge*) pendemo dan polisi diredam 50% dan siklus dorongan diperlambat (menjadi ~0.92s - 0.95s), menghasilkan efek benturan fisik yang terasa berat, stabil, dan tidak jittery/vibrating.
    - **Floating Checkpoint & Tug-of-War HUD (Tengah Atas - Sesuai Sketsa User):**
-     - **Pin Bentrokan Atas (Menunjuk ke Bawah `▼`):** Gelembung bulat berisi ikon pedang bentrok `⚔️` yang bergeser dinamis tepat di atas posisi dorongan saat ini (`line%`).
-     - **Main Progress Bar:** Bar horizontal berbingkai gelap dengan 4 segmen (garis pembatas vertikal pada 25%, 50%, 75%), terisi warna Biru Oposisi (`🔵 {opp}%`) dari kiri dan Merah Pemerintah (`{gov}% 🔴`) dari kanan.
+     - **Pin Bentrokan Atas (Menunjuk ke Bawah `▼`):** Gelembung bulat berisi ikon pedang bentrok `⚔️` yang menunjuk ke garis kuning pembatas.
+     - **Main Progress Bar:** Bar horizontal berbingkai gelap dengan 4 segmen (garis pembatas vertikal pada 25%, 50%, 75%), terisi warna Biru Oposisi (`🔵 {opp}%`) dan Merah Pemerintah (`{gov}% 🔴`).
      - **5 Pin Checkpoint Bawah (Menunjuk ke Atas `▲`):** 5 gelembung pin menggantung di bawah bar dengan ujung menempel ke bar pada posisi 0%, 25%, 50%, 75%, 100%:
        - **0%:** Penjara (`penjara.png`)
        - **25%:** Universitas (`universitas.png`)
        - **50%:** Silang Monas (`monas.png`)
        - **75%:** Gedung DPR (`gedung-dpr.png`)
        - **100%:** Istana Negara (`istana-negara.png`)
-     - Checkpoint aktif ditandai dengan pin membesar dan berbingkai emas menyala.
-   - **Panorama 5 Landmark Bersambung (3360px):** Menggunakan 5 background horizontal berurutan:
+   - **Panorama 5 Landmark Bersambung (Total Dunia 4930px):** Menggunakan 5 background horizontal berurutan dengan aspek rasio alami ($2000 \times 857$ pada tinggi 422px = 986px per panel):
      - `bg-1.png`: **Penjara** (Kubu Oposisi terdesak / kalah)
      - `bg-2.png`: **Kampus Universitas** (Basis mahasiswa pendemo)
      - `bg-3.png`: **Silang Monas** (Titik awal bentrokan pusat 50%)
      - `bg-4.png`: **Gedung DPR / MPR** (Basis kebijakan pemerintah)
      - `bg-5.png`: **Istana Negara** (Kubu Pemerintah terdesak / kalah)
    - Kamera meluncur dinamis (*smooth spring camera*) mengikuti pergeseran garis dorongan dari Penjara (0%) hingga Istana Negara (100%).
+5. **Zona 5: HUD Bawah (23%) - `src/components/Hud.tsx`**
+   - Sisi Kiri (60%): Katalog ringkas harga gift serta Leaderboard Top 3 MVP Gifter.
+   - Sisi Kanan (40%): Frame placeholder kamera host/streamer.
    - Indikator lokasi real-time di bawah arena (`📍 Silang Monas`, `📍 Gedung DPR`, dst.).
    - **Formasi Pasukan Berlapis:**
      - 15 Personel Mahasiswa (Jaket Merah, Biru, Hijau) berbaris rapat 3 lapis mendorong ke kanan.

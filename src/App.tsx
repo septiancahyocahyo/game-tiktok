@@ -38,15 +38,15 @@ export default function App() {
         <div style={{ width: W * scale, height: H * scale }}>
           <div className="relative bg-black overflow-hidden shadow-2xl ring-1 ring-white/20" style={{ width: W, height: H, transform: `scale(${scale})`, transformOrigin: 'top left' }}>
             <div className="h-[8%]"><Header /></div>
-            <div className="h-[22%]"><SkillStage /></div>
-            <div className="h-[10%]"><RunningText /></div>
-            <div className="h-[30%]"><Arena /></div>
-            <div className="h-[30%]"><Hud /></div>
+            <div className="h-[17%]"><SkillStage /></div>
+            <div className="h-[8%]"><RunningText /></div>
+            <div className="h-[44%]"><Arena /></div>
+            <div className="h-[23%]"><Hud /></div>
 
             {rush && (
               <>
                 <div className="absolute inset-0 bg-red-600 pointer-events-none" style={{ animation: 'siren 0.8s infinite' }} />
-                <div className="absolute top-[32%] inset-x-0 text-center text-sm font-black bg-red-700/90 py-0.5">🚨 JAM RAWAN DEMO — KEKUATAN ×5 🚨</div>
+                <div className="absolute top-[33%] inset-x-0 text-center text-sm font-black bg-red-700/90 py-0.5 z-50">🚨 JAM RAWAN DEMO — KEKUATAN ×5 🚨</div>
               </>
             )}
             <AnimatePresence>

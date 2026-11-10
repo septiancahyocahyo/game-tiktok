@@ -14,11 +14,11 @@ const BG_STAGES = [
 ]
 
 // Dimensi matematika dunia horizontal:
-// Setiap panel 2000x857 pada tinggi 288px memiliki lebar alami 288 * (2000/857) = 672px
-const PANEL_WIDTH = 672
-const TOTAL_WORLD_WIDTH = PANEL_WIDTH * 5 // 3360px
+// Pada tinggi arena 422px (44% dari 960px), setiap panel 2000x857 memiliki lebar alami: 422.4 * (2000/857) = 986px
+const PANEL_WIDTH = 986
+const TOTAL_WORLD_WIDTH = PANEL_WIDTH * 5 // 4930px
 const VIEWPORT_WIDTH = 540
-const MAX_SCROLL = TOTAL_WORLD_WIDTH - VIEWPORT_WIDTH // 2820px
+const MAX_SCROLL = TOTAL_WORLD_WIDTH - VIEWPORT_WIDTH // 4390px
 
 const MAHASISWA_SPRITES = {
   merah: '/assets/characters/mahasiswa-merah.png',
@@ -65,51 +65,52 @@ interface PolisiSpec {
 }
 
 // Barisan Mahasiswa (Kiri -> mendorong ke Kanan, menghadap kanan)
+// Gerakan lunge dikurangi agar dorongan terasa kokoh & tidak berguncang terlalu cepat
 const MAHASISWA_UNITS: MahasiswaSpec[] = [
   // Lapis Belakang
-  { id: 'm-b1', sprite: MAHASISWA_SPRITES.hijau, right: 10, bottom: 26, height: 112, z: 10, brightness: 0.76, delay: 0.05, lunge: 9 },
-  { id: 'm-b2', sprite: MAHASISWA_SPRITES.merah, right: 48, bottom: 28, height: 106, z: 10, brightness: 0.76, delay: 0.14, lunge: 8 },
-  { id: 'm-b3', sprite: MAHASISWA_SPRITES.biru, right: 86, bottom: 26, height: 108, z: 10, brightness: 0.74, delay: 0.22, lunge: 7 },
-  { id: 'm-b4', sprite: MAHASISWA_SPRITES.hijau, right: 122, bottom: 28, height: 112, z: 10, brightness: 0.72, delay: 0.3, lunge: 6 },
-  { id: 'm-b5', sprite: MAHASISWA_SPRITES.merah, right: 164, bottom: 26, height: 106, z: 10, brightness: 0.7, delay: 0.38, lunge: 6 },
+  { id: 'm-b1', sprite: MAHASISWA_SPRITES.hijau, right: 12, bottom: 28, height: 124, z: 10, brightness: 0.76, delay: 0.08, lunge: 3.5 },
+  { id: 'm-b2', sprite: MAHASISWA_SPRITES.merah, right: 54, bottom: 30, height: 120, z: 10, brightness: 0.76, delay: 0.18, lunge: 3 },
+  { id: 'm-b3', sprite: MAHASISWA_SPRITES.biru, right: 96, bottom: 28, height: 122, z: 10, brightness: 0.74, delay: 0.28, lunge: 3 },
+  { id: 'm-b4', sprite: MAHASISWA_SPRITES.hijau, right: 138, bottom: 30, height: 124, z: 10, brightness: 0.72, delay: 0.38, lunge: 2.5 },
+  { id: 'm-b5', sprite: MAHASISWA_SPRITES.merah, right: 182, bottom: 28, height: 120, z: 10, brightness: 0.7, delay: 0.46, lunge: 2.5 },
 
   // Lapis Tengah
-  { id: 'm-m1', sprite: MAHASISWA_SPRITES.biru, right: -2, bottom: 14, height: 116, z: 20, brightness: 0.88, delay: 0.02, lunge: 11 },
-  { id: 'm-m2', sprite: MAHASISWA_SPRITES.hijau, right: 30, bottom: 15, height: 122, z: 20, brightness: 0.88, delay: 0.1, lunge: 10 },
-  { id: 'm-m3', sprite: MAHASISWA_SPRITES.merah, right: 72, bottom: 14, height: 116, z: 20, brightness: 0.86, delay: 0.18, lunge: 9 },
-  { id: 'm-m4', sprite: MAHASISWA_SPRITES.biru, right: 110, bottom: 15, height: 116, z: 20, brightness: 0.84, delay: 0.26, lunge: 8 },
-  { id: 'm-m5', sprite: MAHASISWA_SPRITES.hijau, right: 146, bottom: 14, height: 120, z: 20, brightness: 0.82, delay: 0.34, lunge: 7 },
+  { id: 'm-m1', sprite: MAHASISWA_SPRITES.biru, right: -2, bottom: 16, height: 132, z: 20, brightness: 0.88, delay: 0.04, lunge: 4.5 },
+  { id: 'm-m2', sprite: MAHASISWA_SPRITES.hijau, right: 34, bottom: 17, height: 136, z: 20, brightness: 0.88, delay: 0.14, lunge: 4 },
+  { id: 'm-m3', sprite: MAHASISWA_SPRITES.merah, right: 80, bottom: 16, height: 132, z: 20, brightness: 0.86, delay: 0.24, lunge: 3.5 },
+  { id: 'm-m4', sprite: MAHASISWA_SPRITES.biru, right: 124, bottom: 17, height: 132, z: 20, brightness: 0.84, delay: 0.34, lunge: 3.5 },
+  { id: 'm-m5', sprite: MAHASISWA_SPRITES.hijau, right: 166, bottom: 16, height: 134, z: 20, brightness: 0.82, delay: 0.42, lunge: 3 },
 
   // Lapis Depan
-  { id: 'm-f1', sprite: MAHASISWA_SPRITES.merah, right: -8, bottom: 2, height: 124, z: 32, brightness: 1, delay: 0, lunge: 13 },
-  { id: 'm-f2', sprite: MAHASISWA_SPRITES.biru, right: 24, bottom: 2, height: 122, z: 31, brightness: 1, delay: 0.07, lunge: 11 },
-  { id: 'm-f3', sprite: MAHASISWA_SPRITES.hijau, right: 56, bottom: 3, height: 128, z: 30, brightness: 0.98, delay: 0.15, lunge: 10 },
-  { id: 'm-f4', sprite: MAHASISWA_SPRITES.merah, right: 98, bottom: 2, height: 122, z: 29, brightness: 0.96, delay: 0.23, lunge: 8 },
-  { id: 'm-f5', sprite: MAHASISWA_SPRITES.biru, right: 136, bottom: 2, height: 122, z: 28, brightness: 0.94, delay: 0.31, lunge: 7 },
+  { id: 'm-f1', sprite: MAHASISWA_SPRITES.merah, right: -10, bottom: 4, height: 142, z: 32, brightness: 1, delay: 0, lunge: 6 },
+  { id: 'm-f2', sprite: MAHASISWA_SPRITES.biru, right: 26, bottom: 4, height: 140, z: 31, brightness: 1, delay: 0.1, lunge: 5.5 },
+  { id: 'm-f3', sprite: MAHASISWA_SPRITES.hijau, right: 64, bottom: 5, height: 144, z: 30, brightness: 0.98, delay: 0.2, lunge: 5 },
+  { id: 'm-f4', sprite: MAHASISWA_SPRITES.merah, right: 110, bottom: 4, height: 140, z: 29, brightness: 0.96, delay: 0.3, lunge: 4.5 },
+  { id: 'm-f5', sprite: MAHASISWA_SPRITES.biru, right: 154, bottom: 4, height: 140, z: 28, brightness: 0.94, delay: 0.38, lunge: 4 },
 ]
 
 // Barisan Polisi Bertameng (Kanan -> menahan & mendorong ke Kiri, menghadap kiri)
 const POLISI_UNITS: PolisiSpec[] = [
   // Lapis Belakang
-  { id: 'p-b1', left: -14, bottom: 26, height: 108, z: 11, brightness: 0.74, delay: 0.05, lunge: -8 },
-  { id: 'p-b2', left: 20, bottom: 28, height: 108, z: 10, brightness: 0.74, delay: 0.14, lunge: -7 },
-  { id: 'p-b3', left: 54, bottom: 26, height: 108, z: 9, brightness: 0.72, delay: 0.22, lunge: -6 },
-  { id: 'p-b4', left: 88, bottom: 28, height: 106, z: 8, brightness: 0.7, delay: 0.3, lunge: -6 },
-  { id: 'p-b5', left: 122, bottom: 26, height: 106, z: 7, brightness: 0.68, delay: 0.38, lunge: -5 },
+  { id: 'p-b1', left: -14, bottom: 28, height: 122, z: 11, brightness: 0.74, delay: 0.08, lunge: -3.5 },
+  { id: 'p-b2', left: 24, bottom: 30, height: 122, z: 10, brightness: 0.74, delay: 0.18, lunge: -3 },
+  { id: 'p-b3', left: 62, bottom: 28, height: 122, z: 9, brightness: 0.72, delay: 0.28, lunge: -3 },
+  { id: 'p-b4', left: 100, bottom: 30, height: 120, z: 8, brightness: 0.7, delay: 0.38, lunge: -2.5 },
+  { id: 'p-b5', left: 138, bottom: 28, height: 120, z: 7, brightness: 0.68, delay: 0.46, lunge: -2.5 },
 
   // Lapis Tengah
-  { id: 'p-m1', left: -24, bottom: 14, height: 116, z: 22, brightness: 0.88, delay: 0.02, lunge: -10 },
-  { id: 'p-m2', left: 10, bottom: 15, height: 116, z: 21, brightness: 0.88, delay: 0.1, lunge: -9 },
-  { id: 'p-m3', left: 44, bottom: 14, height: 116, z: 20, brightness: 0.86, delay: 0.18, lunge: -8 },
-  { id: 'p-m4', left: 78, bottom: 15, height: 114, z: 19, brightness: 0.84, delay: 0.26, lunge: -7 },
-  { id: 'p-m5', left: 112, bottom: 14, height: 114, z: 18, brightness: 0.82, delay: 0.34, lunge: -6 },
+  { id: 'p-m1', left: -26, bottom: 16, height: 130, z: 22, brightness: 0.88, delay: 0.04, lunge: -4.5 },
+  { id: 'p-m2', left: 12, bottom: 17, height: 130, z: 21, brightness: 0.88, delay: 0.14, lunge: -4 },
+  { id: 'p-m3', left: 50, bottom: 16, height: 130, z: 20, brightness: 0.86, delay: 0.24, lunge: -3.5 },
+  { id: 'p-m4', left: 88, bottom: 17, height: 128, z: 19, brightness: 0.84, delay: 0.34, lunge: -3.5 },
+  { id: 'p-m5', left: 126, bottom: 16, height: 128, z: 18, brightness: 0.82, delay: 0.42, lunge: -3 },
 
   // Lapis Depan
-  { id: 'p-f1', left: -34, bottom: 1, height: 122, z: 33, brightness: 1, delay: 0, lunge: -12 },
-  { id: 'p-f2', left: 0, bottom: 1, height: 122, z: 31, brightness: 1, delay: 0.07, lunge: -10 },
-  { id: 'p-f3', left: 34, bottom: 2, height: 122, z: 30, brightness: 0.98, delay: 0.15, lunge: -9 },
-  { id: 'p-f4', left: 68, bottom: 1, height: 120, z: 29, brightness: 0.96, delay: 0.23, lunge: -8 },
-  { id: 'p-f5', left: 102, bottom: 2, height: 120, z: 28, brightness: 0.94, delay: 0.31, lunge: -7 },
+  { id: 'p-f1', left: -36, bottom: 3, height: 138, z: 33, brightness: 1, delay: 0, lunge: -6 },
+  { id: 'p-f2', left: 2, bottom: 3, height: 138, z: 31, brightness: 1, delay: 0.1, lunge: -5.5 },
+  { id: 'p-f3', left: 40, bottom: 4, height: 138, z: 30, brightness: 0.98, delay: 0.2, lunge: -5 },
+  { id: 'p-f4', left: 78, bottom: 3, height: 136, z: 29, brightness: 0.96, delay: 0.3, lunge: -4.5 },
+  { id: 'p-f5', left: 116, bottom: 4, height: 136, z: 28, brightness: 0.94, delay: 0.38, lunge: -4 },
 ]
 
 function VipColumn({ side, panic }: { side: 'opp' | 'gov'; panic: boolean }) {
@@ -191,11 +192,11 @@ function Formation({ surge }: { surge: 0 | 1 | -1 }) {
   const slow = slowUntil > now
   const rush = rushUntil > now
 
-  // Saat dorongan kuat, barisan yang mendorong bergerak lebih cepat (tanpa berpindah tempat)
-  const oppDuration = (slow ? 1.05 : rush ? 0.3 : 0.48) * (surge === 1 ? 0.55 : 1)
-  const govDuration = (weak ? 0.95 : rush ? 0.32 : 0.5) * (surge === -1 ? 0.55 : 1)
-  const oppBoost = surge === 1 ? 1.6 : 1
-  const govBoost = surge === -1 ? 1.6 : 1
+  // Gerakan lebih tenang dan berbobot (tidak terlalu cepat / jittery)
+  const oppDuration = (slow ? 1.4 : rush ? 0.55 : 0.92) * (surge === 1 ? 0.72 : 1)
+  const govDuration = (weak ? 1.35 : rush ? 0.58 : 0.95) * (surge === -1 ? 0.72 : 1)
+  const oppBoost = surge === 1 ? 1.25 : 1
+  const govBoost = surge === -1 ? 1.25 : 1
 
   return (
     <div className="relative w-0 h-0">
@@ -203,7 +204,7 @@ function Formation({ surge }: { surge: 0 | 1 | -1 }) {
       {/* Bayangan permukaan aspal di bawah kedua barisan */}
       <div
         className="absolute pointer-events-none rounded-full bg-black/50 blur-md"
-        style={{ width: 430, height: 26, left: -215, bottom: 2, zIndex: 4 }}
+        style={{ width: 500, height: 28, left: -250, bottom: 2, zIndex: 4 }}
       />
 
       {/* Barisan Mahasiswa (Kiri -> Mendorong ke Kanan) */}
@@ -223,9 +224,9 @@ function Formation({ surge }: { surge: 0 | 1 | -1 }) {
               filter: `brightness(${u.brightness}) drop-shadow(0 3px 4px rgba(0,0,0,0.45))`,
             }}
             animate={{
-              x: [0, u.lunge * oppBoost, -3, 0],
-              y: [0, -2.5, 0, 0],
-              rotate: [0, 4, -1.5, 0],
+              x: [0, u.lunge * oppBoost, -1, 0],
+              y: [0, -1.8, 0, 0],
+              rotate: [0, 2, -0.6, 0],
             }}
             transition={{
               repeat: Infinity,
@@ -254,9 +255,9 @@ function Formation({ surge }: { surge: 0 | 1 | -1 }) {
               filter: `brightness(${u.brightness}) drop-shadow(0 3px 4px rgba(0,0,0,0.5))`,
             }}
             animate={{
-              x: [0, u.lunge * govBoost, 3, 0],
-              y: [0, -2, 0, 0],
-              rotate: [0, -3.5, 1, 0],
+              x: [0, u.lunge * govBoost, 1, 0],
+              y: [0, -1.5, 0, 0],
+              rotate: [0, -1.8, 0.5, 0],
             }}
             transition={{
               repeat: Infinity,
@@ -272,18 +273,18 @@ function Formation({ surge }: { surge: 0 | 1 | -1 }) {
       <motion.div
         className="absolute pointer-events-none select-none z-40 flex flex-col items-center"
         style={{ left: -12, bottom: 44 }}
-        animate={{ scale: [0.85, 1.35, 0.9], rotate: [-12, 14, -12] }}
-        transition={{ repeat: Infinity, duration: 0.4 }}
+        animate={{ scale: [0.85, 1.25, 0.9], rotate: [-8, 10, -8] }}
+        transition={{ repeat: Infinity, duration: 0.75 }}
       >
         <span className="text-3xl drop-shadow-[0_0_10px_rgba(255,200,0,0.95)]">💥</span>
       </motion.div>
 
       {/* Kepulan Debu Kaki di Aspal */}
       <motion.div
-        className="absolute pointer-events-none select-none z-35 text-lg opacity-80"
+        className="absolute pointer-events-none select-none z-35 text-lg opacity-75"
         style={{ left: -14, bottom: 2 }}
-        animate={{ scale: [0.8, 1.35, 0.8], opacity: [0.35, 0.85, 0.35], y: [0, -5, 0] }}
-        transition={{ repeat: Infinity, duration: 0.52 }}
+        animate={{ scale: [0.85, 1.25, 0.85], opacity: [0.35, 0.75, 0.35], y: [0, -3, 0] }}
+        transition={{ repeat: Infinity, duration: 0.95 }}
       >
         💨
       </motion.div>
@@ -358,6 +359,12 @@ function FloatingTugBar({ line }: { line: number }) {
                 {gov}% 🔴
               </span>
             </div>
+
+            {/* Garis Kuning Pembatas Pertengahan antara Bar Biru dan Merah */}
+            <div
+              className="absolute inset-y-0 w-[2.5px] bg-yellow-400 shadow-[0_0_8px_#fde047] z-20 transition-all duration-150"
+              style={{ left: `${line}%`, transform: 'translateX(-50%)' }}
+            />
 
             {/* Garis Pembatas Vertikal (Dividers pada 25%, 50%, 75% sesuai gambar sketsa) */}
             <div className="absolute inset-y-0 left-[25%] w-[1.5px] bg-slate-950/80 z-10 shadow" />
@@ -452,7 +459,7 @@ export default function Arena() {
       {/* Floating Checkpoints & Tug-of-War Bar di Tengah Atas Game */}
       <FloatingTugBar line={line} />
 
-      {/* Dunia Arena Panjang (3360px) Berisi 5 Background Panoramik Bersambung */}
+      {/* Dunia Arena Panjang (4930px) Berisi 5 Background Panoramik Bersambung */}
       <motion.div
         className="absolute inset-y-0 left-0 bg-slate-900"
         style={{ width: TOTAL_WORLD_WIDTH, x: worldX }}
@@ -489,7 +496,7 @@ export default function Arena() {
                 key={f.id}
                 className="absolute z-50 pointer-events-none"
                 style={{
-                  bottom: 98,
+                  bottom: 110,
                   left: f.dx + (f.side === 'opp' ? -75 : 75),
                 }}
                 initial={{ y: 0, opacity: 1, scale: 0.6 }}
